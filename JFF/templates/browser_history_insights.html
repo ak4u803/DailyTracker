@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Browser History Insights{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Your Browsing Insights</h2>
+        <a href="{{ url_for('browser_history') }}" class="btn btn-outline-primary">Upload New Data</a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Visits</h5>
+                    <p class="display-4">{{ category_data[0]|default(0) }}</p>
+                    <p class="card-text">sites visited in the last 30 days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Time Spent</h5>
+                    <p class="display-4">
+                        {% if category_data and category_data[1] %}
+                            {{ "%.1f"|format(category_data[1]/3600) }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </p>
+                    <p class="card-text">hours browsing in the last 30 days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Top Domain</h5>
+                    <p class="display-4">
+                        {% if top_sites %}
+                            {{ top_sites[0][0]|truncate(15, True) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p class="card-text">most visited site</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Spent Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Daily Browsing Time (hours)</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="timeSpentChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Sites Table -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Top Visited Sites</h5>
+            <span class="text-muted">Last 30 days</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Domain</th>
+                        <th>Visits</th>
+                        <th>Time Spent</th>
+                        <th>Last Visit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for site in top_sites %}
+                    <tr>
+                        <td>{{ site[0] }}</td>
+                        <td>{{ site[1] }}</td>
+                        <td>{{ "%.1f"|format(site[2]/3600) }} hours</td>
+                        <td>{{ site[3].strftime('%b %d, %Y') if site[3] else 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No browsing data available. Upload your browser history to see insights.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script nonce="{{ csp_nonce() }}">
+    // Function to initialize the chart
+    function initChart() {
+        const timeSpentCtx = document.getElementById('timeSpentChart');
+        if (!timeSpentCtx) return;
+        
+        try {
+            const chartData = {
+                labels: JSON.parse('{{ chart_data.labels|tojson|safe }}'),
+                datasets: [{
+                    label: 'Hours Spent',
+                    data: JSON.parse('{{ chart_data.time_spent|tojson|safe }}'),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            };
+            
+            new Chart(timeSpentCtx.getContext('2d'), {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(1) + ' hours';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hours'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing chart:', error);
+        }
+    }
+    
+    // Initialize chart when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initChart);
+</script>
+{% endblock %}

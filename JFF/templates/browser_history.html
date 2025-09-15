@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Browser History{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Upload Browser History</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>How to export your browser history:</h5>
+                        <ol>
+                            <li>Open your browser's settings</li>
+                            <li>Navigate to "History" or "Privacy & Security"</li>
+                            <li>Look for an option to export your browsing history as JSON</li>
+                            <li>Save the file and upload it below</li>
+                        </ol>
+                        <p class="mb-0">We'll analyze your browsing patterns and provide insights while keeping your data private and secure.</p>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="historyFile" class="form-label">Select browser history file (JSON)</label>
+                            <input class="form-control" type="file" id="historyFile" name="history_file" accept=".json" required>
+                            <div class="form-text">We only process the history data and don't store any personal information.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload & Analyze</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script nonce="{{ csp_nonce() }}">
+    // Add any client-side validation if needed
+    document.getElementById('historyFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && !file.name.endsWith('.json')) {
+            alert('Please select a valid JSON file');
+            this.value = '';
+        }
+    });
+</script>
+{% endblock %}

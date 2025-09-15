@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Life Tracker{% endblock %}
+
+{% block page_title %}Create an Account{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Get Started</h2>
+                <p class="text-center text-muted mb-4">Create your account to start tracking your daily activities and see your progress.</p>
+                
+                <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required 
+                                   minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+" 
+                                   title="Username can only contain letters, numbers, and underscores">
+                        </div>
+                        <div class="form-text">3-20 characters. Letters, numbers, and underscores only.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                   minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                   title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 or more characters">
+                        </div>
+                        <div class="form-text">At least 8 characters, including uppercase, lowercase, and numbers.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" id="confirm_password" required>
+                        </div>
+                        <div id="passwordMatch" class="form-text">Passwords must match.</div>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a> and 
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i> Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms of Service Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms of Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Acceptance of Terms</h6>
+                <p>By accessing or using the Life Tracker application, you agree to be bound by these Terms of Service.</p>
+                
+                <h6>2. User Accounts</h6>
+                <p>You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer.</p>
+                
+                <h6>3. User Content</h6>
+                <p>You retain all rights to the data you enter into the application. We will not share your personal data with third parties without your consent.</p>
+                
+                <h6>4. Privacy</h6>
+                <p>Your use of the application is also governed by our Privacy Policy.</p>
+                
+                <h6>5. Changes to Terms</h6>
+                <p>We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new terms on the site.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Information We Collect</h6>
+                <p>We collect information you provide when you register, including your username and password, and any activities you track.</p>
+                
+                <h6>2. How We Use Your Information</h6>
+                <p>We use the information to provide and improve our services, personalize your experience, and analyze how our services are used.</p>
+                
+                <h6>3. Data Security</h6>
+                <p>We implement appropriate security measures to protect your personal information from unauthorized access, alteration, or disclosure.</p>
+                
+                <h6>4. Data Retention</h6>
+                <p>We retain your personal information only for as long as necessary to provide you with our services.</p>
+                
+                <h6>5. Your Rights</h6>
+                <p>You have the right to access, correct, or delete your personal information at any time through your account settings.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirm_password = document.getElementById('confirm_password');
+    const passwordMatch = document.getElementById('passwordMatch');
+    
+    function validatePassword() {
+        if (password.value !== confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords don't match");
+            passwordMatch.className = 'text-danger';
+            passwordMatch.textContent = "Passwords don't match";
+        } else {
+            confirm_password.setCustomValidity('');
+            passwordMatch.className = 'text-success';
+            passwordMatch.textContent = 'Passwords match!';
+        }
+    }
+    
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+    
+    // Form submission handler
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        this.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

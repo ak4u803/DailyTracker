@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Add Activity - Life Tracker{% endblock %}
+
+{% block page_title %}Add New Activity{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_activity') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Activity Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Select a category...</option>
+                                <option value="Work">Work</option>
+                                <option value="Exercise">Exercise</option>
+                                <option value="Study">Study</option>
+                                <option value="Hobby">Hobby</option>
+                                <option value="Social">Social</option>
+                                <option value="Chores">Chores</option>
+                                <option value="Self-care">Self-care</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="duration" class="form-label">Duration (hours) *</label>
+                            <input type="number" class="form-control" id="duration" name="duration" 
+                                   step="0.25" min="0.25" max="24" value="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Mood (1-5) *</label>
+                        <div class="d-flex justify-content-between">
+                            {% for i in range(1, 6) %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="mood" 
+                                       id="mood{{ i }}" value="{{ i }}" {% if i == 3 %}checked{% endif %}>
+                                <label class="form-check-label" for="mood{{ i }}">
+                                    {% for star in range(1, 6) %}
+                                        <i class="bi bi-star{% if star <= i %}-fill{% endif %} mood-star{% if star <= i %} filled{% endif %}"></i>
+                                    {% endfor %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Any additional notes about this activity..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Activity
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Make mood stars clickable
+const moodRadios = document.querySelectorAll('input[name="mood"]');
+moodRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        const value = parseInt(this.value);
+        // Update star display
+        document.querySelectorAll('.form-check-label i').forEach((star, index) => {
+            const starIdx = Math.floor(index / 5) * 5 + 1 + (index % 5);
+            const label = star.closest('.form-check-label');
+            if (label) {
+                const stars = label.querySelectorAll('i');
+                stars.forEach((s, i) => {
+                    s.style.color = (i < value) ? '#ffc107' : '#e9ecef';
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

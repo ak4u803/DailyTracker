@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Life Tracker - Track Your Daily Activities{% endblock %}
+
+{% block content %}
+<div class="row align-items-center min-vh-75 py-5">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="display-4 fw-bold mb-4">Track Your Life, <span class="text-primary">Your Way</span></h1>
+        <p class="lead mb-4">
+            Life Tracker helps you monitor your daily activities, understand your habits, and improve your 
+            productivity and well-being through data-driven insights.
+        </p>
+        <div class="d-grid gap-3 d-sm-flex">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-sm-3">
+                Get Started <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#features" class="btn btn-outline-secondary btn-lg px-4">
+                Learn More
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-body p-0">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                     alt="Life Tracker Dashboard" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="py-5 my-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose Life Tracker?</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h5 class="card-title">Track Everything</h5>
+                        <p class="card-text text-muted">
+                            Log your daily activities, from work and exercise to hobbies and social events, 
+                            all in one place.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle p-3 mb-3 mx-auto">
+                            <i class="bi bi-lightbulb"></i>
+                        </div>
+                        <h5 class="card-title">Gain Insights</h5>
+                        <p class="card-text text-muted">
+                            Discover patterns in your behavior and get personalized insights to help you 
+                            make better decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info bg-opacity-10 text-info rounded-circle p-3 mb-3 mx-auto">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="card-title">Your Data, Your Privacy</h5>
+                        <p class="card-text text-muted">
+                            We take your privacy seriously. Your data is encrypted and never shared without 
+                            your permission.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">How It Works</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon-lg bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                    <h5>1. Create an Account</h5>
+                    <p class="text-muted">Sign up for free in less than a minute.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon-lg bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <h5>2. Log Your Activities</h5>
+                    <p class="text-muted">Add your daily activities with just a few taps.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="feature-icon-lg bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h5>3. View Your Insights</h5>
+                    <p class="text-muted">Discover patterns and trends in your behavior.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5">
+                Start Tracking Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 my-5">
+    <div class="container">
+        <h2 class="text-center mb-5">What Our Users Say</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Sarah J.</h6>
+                                <div class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted">"Life Tracker has completely changed how I manage my time. I've identified time-wasting habits and now I'm more productive than ever!"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Michael T.</h6>
+                                <div class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted">"The analytics are incredibly insightful. I've been able to balance my work and personal life much better since I started using this app."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Emily R.</h6>
+                                <div class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-half"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted">"I love how easy it is to track my daily activities. The interface is clean and intuitive, and the data visualization is top-notch."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Take Control of Your Time?</h2>
+        <p class="lead mb-4">Join thousands of users who are already improving their lives with Life Tracker.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5">
+            Get Started for Free <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</section>
+{% endblock %}

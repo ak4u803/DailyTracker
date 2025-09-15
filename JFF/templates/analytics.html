@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Life Tracker{% endblock %}
+
+{% block page_title %}Activity Analytics{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<div class="time-filter d-flex justify-content-end mb-4">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary time-filter-btn" data-days="7">Last 7 Days</button>
+        <button type="button" class="btn btn-outline-primary time-filter-btn active" data-days="30">Last 30 Days</button>
+        <button type="button" class="btn btn-outline-primary time-filter-btn" data-days="90">Last 90 Days</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-line me-2"></i>Time Spent by Category
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="timeByCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-calendar-week me-2"></i>Daily Activity Trend
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="dailyActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-emoji-smile me-2"></i>Mood Over Time
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="moodTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart me-2"></i>Activity Distribution
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="activityDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightbulb me-2"></i>Insights
+            </div>
+            <div class="card-body">
+                <div id="insights">
+                    <div class="text-center text-muted py-3">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Analyzing your data...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let timeByCategoryChart, dailyActivityChart, moodTrendChart, activityDistributionChart;
+    let currentDays = 30; // Default to 30 days
+    
+    // Initialize all charts
+    function initCharts() {
+        // Time by Category Chart (Bar)
+        const timeByCategoryCtx = document.getElementById('timeByCategoryChart').getContext('2d');
+        timeByCategoryChart = new Chart(timeByCategoryCtx, {
+            type: 'bar',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw.toFixed(1)} hours`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Hours' }
+                    }
+                }
+            }
+        });
+        
+        // Daily Activity Chart (Line)
+        const dailyActivityCtx = document.getElementById('dailyActivityChart').getContext('2d');
+        dailyActivityChart = new Chart(dailyActivityCtx, {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw.toFixed(1)} hours`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Hours' }
+                    }
+                }
+            }
+        });
+        
+        // Mood Trend Chart (Line)
+        const moodTrendCtx = document.getElementById('moodTrendChart').getContext('2d');
+        moodTrendChart = new Chart(moodTrendCtx, {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        title: { display: true, text: 'Mood (1-5)' }
+                    }
+                }
+            }
+        });
+        
+        // Activity Distribution Chart (Doughnut)
+        const activityDistributionCtx = document.getElementById('activityDistributionChart').getContext('2d');
+        activityDistributionChart = new Chart(activityDistributionCtx, {
+            type: 'doughnut',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Load initial data
+        fetchData(currentDays);
+    }
+    
+    // Fetch data from API
+    function fetchData(days) {
+        fetch('/api/activities')
+            .then(response => response.json())
+            .then(data => {
+                // Filter data by selected time period
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - days);
+                const filteredData = data.filter(a => new Date(a.date) >= cutoffDate);
+                
+                updateCharts(filteredData);
+                updateInsights(filteredData);
+            });
+    }
+    
+    // Update all charts with new data
+    function updateCharts(data) {
+        if (data.length === 0) return;
+        
+        // Process data for Time by Category chart
+        const categoryData = {};
+        data.forEach(activity => {
+            const category = activity.category || 'Uncategorized';
+            if (!categoryData[category]) {
+                categoryData[category] = 0;
+            }
+            categoryData[category] += parseFloat(activity.duration);
+        });
+        
+        // Update Time by Category chart
+        timeByCategoryChart.data.labels = Object.keys(categoryData);
+        timeByCategoryChart.data.datasets = [{
+            label: 'Hours',
+            data: Object.values(categoryData),
+            backgroundColor: getRandomColors(Object.keys(categoryData).length)
+        }];
+        timeByCategoryChart.update();
+        
+        // Process data for Daily Activity chart (group by date)
+        const dailyData = {};
+        data.forEach(activity => {
+            const date = activity.date.split('T')[0];
+            if (!dailyData[date]) {
+                dailyData[date] = 0;
+            }
+            dailyData[date] += parseFloat(activity.duration);
+        });
+        
+        // Sort dates
+        const sortedDates = Object.keys(dailyData).sort();
+        
+        // Update Daily Activity chart
+        dailyActivityChart.data.labels = sortedDates.map(date => new Date(date).toLocaleDateString());
+        dailyActivityChart.data.datasets = [{
+            label: 'Total Hours',
+            data: sortedDates.map(date => dailyData[date]),
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            tension: 0.3,
+            fill: true
+        }];
+        dailyActivityChart.update();
+        
+        // Process data for Mood Trend chart (average mood by date)
+        const moodByDate = {};
+        data.forEach(activity => {
+            if (!activity.mood) return;
+            const date = activity.date.split('T')[0];
+            if (!moodByDate[date]) {
+                moodByDate[date] = { sum: 0, count: 0 };
+            }
+            moodByDate[date].sum += parseInt(activity.mood);
+            moodByDate[date].count++;
+        });
+        
+        // Calculate average mood for each date
+        const moodDates = Object.keys(moodByDate).sort();
+        const avgMoods = moodDates.map(date => (moodByDate[date].sum / moodByDate[date].count).toFixed(2));
+        
+        // Update Mood Trend chart
+        moodTrendChart.data.labels = moodDates.map(date => new Date(date).toLocaleDateString());
+        moodTrendChart.data.datasets = [{
+            label: 'Average Mood',
+            data: avgMoods,
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+            tension: 0.3,
+            pointBackgroundColor: '#ffc107',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#ffc107'
+        }];
+        moodTrendChart.update();
+        
+        // Process data for Activity Distribution chart (top 5 activities by time)
+        const activityData = {};
+        data.forEach(activity => {
+            const name = activity.name;
+            if (!activityData[name]) {
+                activityData[name] = 0;
+            }
+            activityData[name] += parseFloat(activity.duration);
+        });
+        
+        // Sort activities by time spent and take top 5
+        const sortedActivities = Object.entries(activityData)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+        
+        // Update Activity Distribution chart
+        activityDistributionChart.data.labels = sortedActivities.map(([name]) => name);
+        activityDistributionChart.data.datasets = [{
+            data: sortedActivities.map(([_, time]) => time),
+            backgroundColor: getRandomColors(sortedActivities.length, 0.7),
+            borderWidth: 1
+        }];
+        activityDistributionChart.update();
+    }
+    
+    // Update insights based on data
+    function updateInsights(data) {
+        if (data.length === 0) {
+            document.getElementById('insights').innerHTML = `
+                <div class="alert alert-info">
+                    No activity data available for the selected time period.
+                </div>
+            `;
+            return;
+        }
+        
+        // Calculate total hours
+        const totalHours = data.reduce((sum, activity) => sum + parseFloat(activity.duration), 0);
+        
+        // Calculate average hours per day
+        const uniqueDays = new Set(data.map(a => a.date.split('T')[0]));
+        const avgHoursPerDay = totalHours / uniqueDays.size;
+        
+        // Calculate average mood (if available)
+        const moodActivities = data.filter(a => a.mood);
+        const avgMood = moodActivities.length > 0 
+            ? (moodActivities.reduce((sum, a) => sum + parseInt(a.mood), 0) / moodActivities.length).toFixed(1)
+            : 'N/A';
+        
+        // Find most common activity
+        const activityCounts = {};
+        data.forEach(a => {
+            activityCounts[a.name] = (activityCounts[a.name] || 0) + 1;
+        });
+        const mostCommonActivity = Object.entries(activityCounts)
+            .sort((a, b) => b[1] - a[1])[0];
+        
+        // Generate insights HTML
+        let insightsHTML = `
+            <div class="mb-3">
+                <h6>📊 Total Tracked Time</h6>
+                <p>You've logged <strong>${totalHours.toFixed(1)} hours</strong> across ${uniqueDays.size} days, 
+                averaging <strong>${avgHoursPerDay.toFixed(1)} hours per day</strong>.</p>
+            </div>
+        `;
+        
+        if (avgMood !== 'N/A') {
+            insightsHTML += `
+                <div class="mb-3">
+                    <h6>😊 Average Mood</h6>
+                    <p>Your average mood rating is <strong>${avgMood}/5.0</strong>.</p>
+                </div>
+            `;
+        }
+        
+        if (mostCommonActivity) {
+            insightsHTML += `
+                <div class="mb-3">
+                    <h6>⭐ Most Common Activity</h6>
+                    <p>You've logged <strong>${mostCommonActivity[0]}</strong> most frequently 
+                    (${mostCommonActivity[1]} times).</p>
+                </div>
+            `;
+        }
+        
+        // Add a tip based on the data
+        if (avgHoursPerDay < 4) {
+            insightsHTML += `
+                <div class="alert alert-warning mt-3">
+                    <h6>💡 Tip</h6>
+                    <p class="mb-0">You're tracking a relatively low number of hours. Try to log more activities 
+                    to get better insights into your daily patterns.</p>
+                </div>
+            `;
+        } else if (avgHoursPerDay > 12) {
+            insightsHTML += `
+                <div class="alert alert-info mt-3">
+                    <h6>💡 Tip</h6>
+                    <p class="mb-0">You're tracking a lot of activities! Make sure to include breaks and 
+                    self-care in your daily routine.</p>
+                </div>
+            `;
+        }
+        
+        document.getElementById('insights').innerHTML = insightsHTML;
+    }
+    
+    // Helper function to generate random colors
+    function getRandomColors(count, opacity = 1) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const hue = Math.floor(Math.random() * 360);
+            colors.push(`hsla(${hue}, 70%, 60%, ${opacity})`);
+        }
+        return colors;
+    }
+    
+    // Time filter button click handlers
+    document.querySelectorAll('.time-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update charts with new time period
+            currentDays = parseInt(this.dataset.days);
+            fetchData(currentDays);
+        });
+    });
+    
+    // Initialize charts when the page loads
+    initCharts();
+});
+</script>
+{% endblock %}
